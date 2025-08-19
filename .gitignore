@@ -1,0 +1,96 @@
+# =============================================================================
+# YOLO 환경 관리 시스템 - Git 제외 파일 설정
+# =============================================================================
+
+# 대용량 파일들 제외
+*.sh.backup
+*.bin
+*.tar.gz
+*.zip
+*.deb
+Miniconda3-*.sh
+
+# 시스템 디렉토리 제외
+miniconda3/
+.cache/
+.conda/
+.vscode-server/
+.local/
+.config/
+.ssh/
+.gnupg/
+
+# YOLO 관련 대용량 파일
+*.pt
+*.onnx
+*.engine
+runs/
+weights/
+datasets/
+
+# Python 관련
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 환경 파일
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE 및 에디터
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 관련
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 로그 파일
+*.log
+logs/
+yolo_env_logs/
+backups/
+
+# 임시 파일
+*.tmp
+*.temp
+temp/
+tmp/
+*.bak
+*.backup
+
+# 분류/검출 관련 실행 결과
+classification/*/runs/
+detection/*/runs/
+
+# 기타 제외할 파일들
+check_pkg_*.sh
+*.old
