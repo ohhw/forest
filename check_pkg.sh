@@ -1170,8 +1170,13 @@ function show_menu() {
         9)
             optimize_multicore
             echo ""
-            read -p "계속하려면 Enter..."
-            show_menu
+            echo -e "${CYAN}계속하려면 Enter를 누르세요...${NC}"
+            if read -t 30; then
+                show_menu
+            else
+                echo -e "${YELLOW}시간 초과 또는 입력 오류로 메뉴로 돌아갑니다.${NC}"
+                show_menu
+            fi
             ;;
         0)
             print_success "🎯 YOLO 환경 관리 시스템을 종료합니다."
@@ -2284,19 +2289,33 @@ EOF
     
     # PyTorch 설정 확인
     print_info "PyTorch 멀티코어 설정 확인 중..."
-    python3 -c "
+    
+    if command -v python3 &>/dev/null; then
+        python3 -c "
 import torch
 import multiprocessing as mp
-print(f'CPU 코어 수: {mp.cpu_count()}')
-print(f'PyTorch CPU 스레드: {torch.get_num_threads()}')
-print(f'OpenMP 스레드: {torch.get_num_interop_threads()}')
+print('CPU 코어 수: {}'.format(mp.cpu_count()))
+print('PyTorch CPU 스레드: {}'.format(torch.get_num_threads()))
+print('OpenMP 스레드: {}'.format(torch.get_num_interop_threads()))
 if torch.cuda.is_available():
-    print(f'CUDA 장치 수: {torch.cuda.device_count()}')
+    print('CUDA 장치 수: {}'.format(torch.cuda.device_count()))
     for i in range(torch.cuda.device_count()):
-        print(f'GPU {i}: {torch.cuda.get_device_name(i)}')
-"
+        print('GPU {}: {}'.format(i, torch.cuda.get_device_name(i)))
+" 2>/dev/null || {
+            print_warning "PyTorch 설정 확인을 건너뜁니다."
+        }
+    else
+        print_warning "Python3를 찾을 수 없습니다."
+    fi
     
     print_success "멀티코어 최적화 설정 완료"
+    echo ""
+    print_info "현재 설정된 환경변수:"
+    echo "  OMP_NUM_THREADS: ${OMP_NUM_THREADS:-없음}"
+    echo "  MKL_NUM_THREADS: ${MKL_NUM_THREADS:-없음}"
+    echo "  NUMEXPR_NUM_THREADS: ${NUMEXPR_NUM_THREADS:-없음}"
+    echo "  OPENBLAS_NUM_THREADS: ${OPENBLAS_NUM_THREADS:-없음}"
+    echo ""
 }
 
 # YOLO 학습 최적화 실행
