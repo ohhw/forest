@@ -22,36 +22,68 @@ if [[ ! -f /etc/os-release ]] || ! grep -q "Ubuntu" /etc/os-release; then
     exit 1
 fi
 
-# 로깅 시스템 설정
-readonly LOG_DIR="$HOME/.cache/yolo_env_logs"
+# 로깅 시스템 설정 - 통합 디렉토리 구조
+readonly LOG_BASE_DIR="$HOME/check_pkg_log"
 readonly SESSION_ID="$(TZ='Asia/Seoul' date +%Y%m%d_%H%M%S)"
-readonly LOG_FILE="$LOG_DIR/yolo_env_${SESSION_ID}.log"
-readonly BACKUP_DIR="$LOG_DIR/backups"
+readonly LOG_DIR="$LOG_BASE_DIR/sessions"
+readonly LOG_FILE="$LOG_DIR/session_${SESSION_ID}.log"
+readonly BACKUP_DIR="$LOG_BASE_DIR/backups"
+readonly ERROR_LOG_DIR="$LOG_BASE_DIR/errors"
+readonly PERFORMANCE_LOG_DIR="$LOG_BASE_DIR/performance"
+readonly SYSTEM_STATE_DIR="$LOG_BASE_DIR/system_states"
 
-mkdir -p "$LOG_DIR" "$BACKUP_DIR"
+# 로그 디렉토리 구조 생성
+mkdir -p "$LOG_DIR" "$BACKUP_DIR" "$ERROR_LOG_DIR" "$PERFORMANCE_LOG_DIR" "$SYSTEM_STATE_DIR"
+
+# 로그 디렉토리 정보 함수
+show_log_structure() {
+    echo -e "${CYAN}📁 로그 디렉토리 구조:${NC}"
+    echo -e "${CYAN}$LOG_BASE_DIR/${NC}"
+    echo -e "${CYAN}├── sessions/          # 세션별 로그${NC}"
+    echo -e "${CYAN}├── backups/           # 시스템 백업${NC}"
+    echo -e "${CYAN}├── errors/            # 오류 로그${NC}"
+    echo -e "${CYAN}├── performance/       # 성능 벤치마크${NC}"
+    echo -e "${CYAN}└── system_states/     # 시스템 상태 스냅샷${NC}"
+}
 
 # 로그 및 상태 관리 함수
 log_message() {
     local level="$1"
     local message="$2"
     local timestamp="$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M:%S KST')"
+    local date_prefix="$(TZ='Asia/Seoul' date '+%Y%m%d')"
+    
+    # 세션 로그에 기록
     echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
     
-    # 중요한 로그는 별도 보관
-    if [[ "$level" == "ERROR" || "$level" == "CRITICAL" ]]; then
-        echo "[$timestamp] [$level] $message" >> "$LOG_DIR/errors.log"
-    fi
+    # 레벨별 전용 로그에 추가 기록
+    case "$level" in
+        "ERROR"|"CRITICAL")
+            echo "[$timestamp] [$level] $message" >> "$ERROR_LOG_DIR/errors_${date_prefix}.log"
+            ;;
+        "PERFORMANCE"|"BENCHMARK")
+            echo "[$timestamp] [$level] $message" >> "$PERFORMANCE_LOG_DIR/performance_${date_prefix}.log"
+            ;;
+    esac
 }
 
 # 시스템 상태 백업
 backup_system_state() {
-    local backup_file="$BACKUP_DIR/system_state_${SESSION_ID}.json"
+    local backup_file="$SYSTEM_STATE_DIR/system_state_${SESSION_ID}.json"
     
     cat > "$backup_file" << EOF
 {
     "timestamp": "$(TZ='Asia/Seoul' date -Iseconds)",
     "timezone": "Asia/Seoul (KST)",
     "session_id": "$SESSION_ID",
+    "log_structure": {
+        "base_dir": "$LOG_BASE_DIR",
+        "session_log": "$LOG_FILE",
+        "backup_dir": "$BACKUP_DIR",
+        "error_dir": "$ERROR_LOG_DIR",
+        "performance_dir": "$PERFORMANCE_LOG_DIR",
+        "system_state_dir": "$SYSTEM_STATE_DIR"
+    },
     "nvidia_driver": "$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null || echo 'not_installed')",
     "cuda_version": "$(nvcc --version 2>/dev/null | grep 'release' | sed 's/.*release \([0-9.]*\).*/\1/' || echo 'not_installed')",
     "python_version": "$(python3 --version 2>/dev/null || echo 'not_installed')",
@@ -192,6 +224,16 @@ print_critical() {
 print_yolo_info() {
     echo -e "${PURPLE}🎯 [YOLO] $1${NC}"
     log_message "YOLO" "$1"
+}
+
+print_performance() {
+    echo -e "${CYAN}📊 [PERFORMANCE] $1${NC}"
+    log_message "PERFORMANCE" "$1"
+}
+
+print_benchmark() {
+    echo -e "${BLUE}🚀 [BENCHMARK] $1${NC}"
+    log_message "BENCHMARK" "$1"
 }
 
 # YOLO 환경 검증 함수
@@ -1129,8 +1171,9 @@ function show_menu() {
     echo ""
     echo -e "${RED} 0.${NC} 🚪 종료"
     echo ""
-    echo -e "${CYAN}💾 로그: $LOG_FILE${NC}"
-    echo -e "${CYAN}📂 백업: $BACKUP_DIR${NC}"
+    echo -e "${CYAN}� 로그 구조: $LOG_BASE_DIR${NC}"
+    echo -e "${CYAN}  └─ 세션: ${LOG_FILE##*/}${NC}"
+    echo -e "${CYAN}  └─ 백업: ${BACKUP_DIR##*/}/ | 오류: ${ERROR_LOG_DIR##*/}/ | 성능: ${PERFORMANCE_LOG_DIR##*/}/${NC}"
     echo ""
     
     read -p "선택 (0-10): " choice
@@ -2244,7 +2287,8 @@ initialize_system() {
     
     print_info "🚀 YOLO/딥러닝 환경 관리 시스템이 시작되었습니다."
     echo -e "${CYAN}📝 세션 ID: $SESSION_ID${NC}"
-    echo -e "${CYAN}📄 로그 파일: $LOG_FILE${NC}"
+    echo -e "${CYAN}� 로그 디렉토리: $LOG_BASE_DIR${NC}"
+    echo -e "${CYAN}�📄 세션 로그: ${LOG_FILE##*/}${NC}"
     echo ""
     sleep 1
 }
@@ -2261,9 +2305,11 @@ cleanup_on_exit() {
     fi
     
     echo -e "${CYAN}🎯 YOLO 환경 관리 시스템을 안전하게 종료했습니다.${NC}"
-    echo -e "${CYAN}📝 로그 및 백업 파일은 다음 위치에 저장되었습니다:${NC}"
-    echo -e "${CYAN}   📄 로그: $LOG_FILE${NC}"
-    echo -e "${CYAN}   📂 백업: $BACKUP_DIR${NC}"
+    echo -e "${CYAN}� 모든 로그는 체계적으로 저장되었습니다:${NC}"
+    echo -e "${CYAN}   📁 기본 디렉토리: $LOG_BASE_DIR${NC}"
+    echo -e "${CYAN}   📄 세션 로그: ${LOG_FILE##*/}${NC}"
+    echo -e "${CYAN}   � 시스템 상태: ${SYSTEM_STATE_DIR##*/}/system_state_${SESSION_ID}.json${NC}"
+    echo -e "${CYAN}   �📂 백업: ${BACKUP_DIR##*/}/ | 오류: ${ERROR_LOG_DIR##*/}/ | 성능: ${PERFORMANCE_LOG_DIR##*/}/${NC}"
     
     exit $exit_code
 }
@@ -2361,7 +2407,7 @@ if torch.cuda.is_available():
 
 # 실시간 CPU 부하 분산 기능
 balance_cpu_load() {
-    print_header "⚖️ 실시간 CPU 부하 분산"
+    print_header "⚖️  실시간 CPU 부하 분산"
     
     # 실행 중인 Python/YOLO 프로세스 찾기
     local python_pids=$(pgrep -f "python.*train|python.*yolo" | head -5)
