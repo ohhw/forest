@@ -33,7 +33,24 @@ YOLO/딥러닝 환경을 위한 종합적인 시스템 관리 도구입니다. N
 - 모델 테스트 및 검증
 - GPU 메모리 기반 모델 추천
 
-### 🔧 **고급 도구**
+### � **멀티코어 CPU 최적화** (NEW!)
+- Intel MKL 및 OpenMP 환경변수 자동 설정
+- OMP_NUM_THREADS, OMP_SCHEDULE, KMP_AFFINITY 최적화
+- conda 환경 영구 저장으로 재부팅 후에도 설정 유지
+- PyTorch 멀티스레딩 성능 극대화
+
+### ⚖️ **실시간 CPU 부하 분산** (NEW!)
+- htop 연동으로 실행 중인 프로세스 자동 감지
+- taskset 기반 CPU 코어별 균등 분산
+- 8코어 100% 활용으로 훈련 속도 향상
+- python/conda/yolo 프로세스 우선 타겟팅
+
+### 🕒 **KST 타임존 로깅** (NEW!)
+- 모든 로그를 한국표준시(KST)로 통일
+- VM 시간과 실제 시간 구분으로 운영 명확성 향상
+- SESSION_ID, 백업 메타데이터 시간대 일관성
+
+### �🔧 **고급 도구**
 - 자동 진단 및 복구
 - 성능 벤치마크
 - 시스템 정리 및 최적화
@@ -110,7 +127,31 @@ ls /usr/local/cuda-*
 sudo update-alternatives --config cuda
 ```
 
-### 3. YOLO 모델 테스트
+### 3. 멀티코어 CPU 최적화 (NEW!)
+CPU 성능을 극대화하여 YOLO 훈련 속도를 향상시킵니다.
+
+```bash
+./check_pkg.sh
+# 메뉴에서 "9. 멀티코어 최적화" 선택
+
+# 설정된 환경변수 확인
+echo $OMP_NUM_THREADS
+echo $OMP_SCHEDULE
+echo $KMP_AFFINITY
+```
+
+### 4. 실시간 CPU 부하 분산 (NEW!)
+실행 중인 프로세스를 모든 CPU 코어에 균등 분산시킵니다.
+
+```bash
+./check_pkg.sh
+# 메뉴에서 "10. CPU 부하 분산" 선택
+
+# htop으로 실시간 CPU 사용률 모니터링
+htop
+```
+
+### 5. YOLO 모델 테스트
 설치된 환경에서 YOLO 모델의 정상 동작을 검증합니다.
 
 ```bash
@@ -153,20 +194,86 @@ pip install ultralytics
 pip cache purge
 ```
 
+**4. CPU 성능 최적화 문제** (NEW!)
+```bash
+# 멀티코어 설정 확인
+./check_pkg.sh
+# 메뉴 9번으로 멀티코어 최적화 실행
+
+# 환경변수 수동 설정 (임시)
+export OMP_NUM_THREADS=8
+export OMP_SCHEDULE=dynamic
+export OMP_PROC_BIND=spread
+export KMP_AFFINITY=granularity=fine,verbose,compact,1,0
+```
+
+**5. CPU 부하 불균형 문제** (NEW!)
+```bash
+# 실시간 CPU 부하 분산 적용
+./check_pkg.sh
+# 메뉴 10번으로 CPU 부하 분산 실행
+
+# 수동으로 프로세스 분산
+htop  # 프로세스 PID 확인
+sudo taskset -cp 0-7 [PID]  # 모든 코어에 분산
+```
+
 ## 📁 프로젝트 구조
 
 ```
 forest/
-├── check_pkg.sh           # 메인 관리 스크립트
+├── check_pkg.sh           # 메인 관리 스크립트 (멀티코어 최적화 포함)
 ├── README.md              # 프로젝트 문서
 ├── LICENSE                # 라이선스 파일
-├── .gitignore             # Git 무시 파일 목록
+├── .gitignore             # Git 무시 파일 목록 (선택적 추적)
 └── code/                  # 유틸리티 및 도구
     ├── classification/    # 분류 모델 학습 코드
+    │   ├── train_cls_csn_yolo11.py
+    │   └── train_cls_jjb_yolo11.py
     ├── detection/         # 탐지 모델 학습 코드
+    │   ├── train_dod_csn_yolo11.py
+    │   ├── train_dod_wln_yolo11.py
+    │   └── train_dod_yolo_rev.py
     ├── converter/         # 데이터 변환 도구
-    └── *.py               # 다양한 데이터 처리 도구
+    │   ├── img_to_arr.py
+    │   └── tiff_to_bmp.py
+    ├── aug_annotation.py  # 어노테이션 증강
+    ├── aug_image.py       # 이미지 증강
+    ├── check_env.py       # 환경 검증
+    ├── make_txt_yolo.py   # YOLO 형식 라벨 생성
+    ├── split_images.py    # 데이터셋 분할
+    └── viz_ground_truth.py # 정답 시각화
 ```
+
+## 🚀 성능 최적화 가이드
+
+### CPU 멀티코어 최적화
+```bash
+# 자동 최적화 (권장)
+./check_pkg.sh → 메뉴 9번
+
+# 수동 설정
+export OMP_NUM_THREADS=8
+export OMP_SCHEDULE=dynamic
+export OMP_PROC_BIND=spread
+export OMP_PLACES=cores
+export KMP_AFFINITY=granularity=fine,verbose,compact,1,0
+```
+
+### 실시간 부하 분산
+```bash
+# 자동 분산 (권장)
+./check_pkg.sh → 메뉴 10번
+
+# htop으로 모니터링
+htop
+```
+
+### 시스템 요구사항 (업데이트)
+- **CPU**: 8코어 이상 권장 (멀티코어 최적화 효과 극대화)
+- **GPU**: NVIDIA RTX 3060 이상 (CUDA 12.x 지원)
+- **메모리**: 16GB 이상 (8코어 동시 처리 시)
+- **스토리지**: NVMe SSD 권장 (빠른 데이터 로딩)
 
 ## 🤝 기여하기
 
