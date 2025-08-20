@@ -24,7 +24,7 @@ fi
 
 # 로깅 시스템 설정
 readonly LOG_DIR="$HOME/.cache/yolo_env_logs"
-readonly SESSION_ID="$(date +%Y%m%d_%H%M%S)"
+readonly SESSION_ID="$(TZ='Asia/Seoul' date +%Y%m%d_%H%M%S)"
 readonly LOG_FILE="$LOG_DIR/yolo_env_${SESSION_ID}.log"
 readonly BACKUP_DIR="$LOG_DIR/backups"
 
@@ -34,7 +34,7 @@ mkdir -p "$LOG_DIR" "$BACKUP_DIR"
 log_message() {
     local level="$1"
     local message="$2"
-    local timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    local timestamp="$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M:%S KST')"
     echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
     
     # 중요한 로그는 별도 보관
@@ -49,7 +49,8 @@ backup_system_state() {
     
     cat > "$backup_file" << EOF
 {
-    "timestamp": "$(date -Iseconds)",
+    "timestamp": "$(TZ='Asia/Seoul' date -Iseconds)",
+    "timezone": "Asia/Seoul (KST)",
     "session_id": "$SESSION_ID",
     "nvidia_driver": "$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null || echo 'not_installed')",
     "cuda_version": "$(nvcc --version 2>/dev/null | grep 'release' | sed 's/.*release \([0-9.]*\).*/\1/' || echo 'not_installed')",
@@ -1080,7 +1081,7 @@ function show_menu() {
     print_header "🎯 YOLO/딥러닝 환경 전문 관리 시스템 v2.0"
     
     # 시스템 정보 간단 표시
-    local current_time=$(date '+%Y-%m-%d %H:%M:%S')
+    local current_time=$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M:%S KST')
     local gpu_status="❌ 미설치"
     local cuda_status="❌ 미설치"
     local pytorch_status="❌ 미설치"
@@ -1124,6 +1125,7 @@ function show_menu() {
     echo -e "${GREEN} 7.${NC} 📊 성능 벤치마크      - GPU/CPU 성능 측정"
     echo -e "${GREEN} 8.${NC} 🔧 문제 해결 도구     - 자동 진단 및 복구"
     echo -e "${GREEN} 9.${NC} 🚀 멀티코어 최적화    - CPU 코어 활용 최적화"
+    echo -e "${GREEN}10.${NC} ⚖️  CPU 부하 분산      - 실행 중인 프로세스 부하 분산"
     echo ""
     echo -e "${RED} 0.${NC} 🚪 종료"
     echo ""
@@ -1131,7 +1133,7 @@ function show_menu() {
     echo -e "${CYAN}📂 백업: $BACKUP_DIR${NC}"
     echo ""
     
-    read -p "선택 (0-9): " choice
+    read -p "선택 (0-10): " choice
     case $choice in
         1)
             diagnose_environment
@@ -1169,6 +1171,17 @@ function show_menu() {
             ;;
         9)
             optimize_multicore
+            echo ""
+            echo -e "${CYAN}계속하려면 Enter를 누르세요...${NC}"
+            if read -t 30; then
+                show_menu
+            else
+                echo -e "${YELLOW}시간 초과 또는 입력 오류로 메뉴로 돌아갑니다.${NC}"
+                show_menu
+            fi
+            ;;
+        10)
+            balance_cpu_load
             echo ""
             echo -e "${CYAN}계속하려면 Enter를 누르세요...${NC}"
             if read -t 30; then
@@ -2262,12 +2275,26 @@ optimize_multicore() {
     local cpu_cores=$(nproc)
     print_info "감지된 CPU 코어 수: $cpu_cores"
     
-    # 환경변수 설정
+    # 기본 환경변수 설정
     export OMP_NUM_THREADS=$cpu_cores
     export MKL_NUM_THREADS=$cpu_cores
     export NUMEXPR_NUM_THREADS=$cpu_cores
     export OPENBLAS_NUM_THREADS=$cpu_cores
     export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+    
+    # 고급 CPU 분산 환경변수 설정
+    export OMP_SCHEDULE=dynamic
+    export OMP_PROC_BIND=spread
+    export OMP_PLACES=cores
+    export KMP_AFFINITY=granularity=fine,verbose,compact,1,0
+    export MKL_DYNAMIC=TRUE
+    export OPENBLAS_DYNAMIC=TRUE
+    
+    # PyTorch 멀티프로세싱 설정
+    export TORCH_DISTRIBUTED_BACKEND=nccl
+    export CUDA_LAUNCH_BLOCKING=0
+    
+    print_success "고급 멀티코어 환경변수 설정 완료"
     
     # Conda 환경에 영구 설정
     if [[ -n "$CONDA_PREFIX" ]]; then
@@ -2282,9 +2309,21 @@ export MKL_NUM_THREADS=$cpu_cores
 export NUMEXPR_NUM_THREADS=$cpu_cores
 export OPENBLAS_NUM_THREADS=$cpu_cores
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+
+# 고급 CPU 분산 설정
+export OMP_SCHEDULE=dynamic
+export OMP_PROC_BIND=spread
+export OMP_PLACES=cores
+export KMP_AFFINITY=granularity=fine,verbose,compact,1,0
+export MKL_DYNAMIC=TRUE
+export OPENBLAS_DYNAMIC=TRUE
+
+# PyTorch 최적화
+export TORCH_DISTRIBUTED_BACKEND=nccl
+export CUDA_LAUNCH_BLOCKING=0
 EOF
         chmod +x "$env_vars_file"
-        print_success "Conda 환경에 멀티코어 설정 영구 저장: $env_vars_file"
+        print_success "Conda 환경에 고급 멀티코어 설정 영구 저장: $env_vars_file"
     fi
     
     # PyTorch 설정 확인
@@ -2315,7 +2354,61 @@ if torch.cuda.is_available():
     echo "  MKL_NUM_THREADS: ${MKL_NUM_THREADS:-없음}"
     echo "  NUMEXPR_NUM_THREADS: ${NUMEXPR_NUM_THREADS:-없음}"
     echo "  OPENBLAS_NUM_THREADS: ${OPENBLAS_NUM_THREADS:-없음}"
+    echo "  OMP_SCHEDULE: ${OMP_SCHEDULE:-없음}"
+    echo "  OMP_PROC_BIND: ${OMP_PROC_BIND:-없음}"
     echo ""
+}
+
+# 실시간 CPU 부하 분산 기능
+balance_cpu_load() {
+    print_header "⚖️ 실시간 CPU 부하 분산"
+    
+    # 실행 중인 Python/YOLO 프로세스 찾기
+    local python_pids=$(pgrep -f "python.*train|python.*yolo" | head -5)
+    
+    if [[ -z "$python_pids" ]]; then
+        print_warning "실행 중인 Python 학습 프로세스를 찾을 수 없습니다."
+        return 1
+    fi
+    
+    print_info "발견된 Python 학습 프로세스들:"
+    for pid in $python_pids; do
+        local cmd=$(ps -p $pid -o comm= 2>/dev/null || echo "unknown")
+        local cpu_usage=$(ps -p $pid -o %cpu= 2>/dev/null || echo "0")
+        echo "  PID: $pid, 명령: $cmd, CPU: ${cpu_usage}%"
+    done
+    
+    echo ""
+    read -p "이 프로세스들에 CPU 부하 분산을 적용하시겠습니까? (y/N): " -t 10 apply_balance
+    
+    if [[ "$apply_balance" =~ ^[Yy]$ ]]; then
+        local cpu_cores=$(nproc)
+        local core_per_process=$((cpu_cores / $(echo "$python_pids" | wc -w)))
+        local core_start=0
+        
+        for pid in $python_pids; do
+            local core_end=$((core_start + core_per_process - 1))
+            if [[ $core_end -ge $cpu_cores ]]; then
+                core_end=$((cpu_cores - 1))
+            fi
+            
+            print_info "PID $pid를 CPU 코어 $core_start-$core_end에 할당"
+            sudo taskset -cp $core_start-$core_end $pid 2>/dev/null || {
+                print_warning "PID $pid CPU 친화성 설정 실패"
+            }
+            
+            # 스케줄러 정책 변경
+            sudo chrt -b 0 -p $pid 2>/dev/null || true
+            
+            core_start=$((core_end + 1))
+        done
+        
+        print_success "CPU 부하 분산 적용 완료"
+        echo ""
+        print_info "htop이나 top 명령으로 CPU 분산 상태를 확인해보세요."
+    else
+        print_info "CPU 부하 분산을 취소했습니다."
+    fi
 }
 
 # YOLO 학습 최적화 실행
