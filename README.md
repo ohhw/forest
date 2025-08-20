@@ -160,10 +160,12 @@ forest/
 ├── check_pkg.sh           # 메인 관리 스크립트
 ├── README.md              # 프로젝트 문서
 ├── LICENSE                # 라이선스 파일
-└── docs/                  # 추가 문서
-    ├── installation.md    # 설치 가이드
-    ├── troubleshooting.md # 문제 해결 가이드
-    └── examples/          # 사용 예제
+├── .gitignore             # Git 무시 파일 목록
+└── code/                  # 유틸리티 및 도구
+    ├── classification/    # 분류 모델 학습 코드
+    ├── detection/         # 탐지 모델 학습 코드
+    ├── converter/         # 데이터 변환 도구
+    └── *.py               # 다양한 데이터 처리 도구
 ```
 
 ## 🤝 기여하기
