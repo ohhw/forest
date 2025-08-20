@@ -1123,6 +1123,7 @@ function show_menu() {
     echo -e "${GREEN} 6.${NC} 🎯 YOLO 모델 테스트    - 설치된 환경에서 YOLO 동작 검증"
     echo -e "${GREEN} 7.${NC} 📊 성능 벤치마크      - GPU/CPU 성능 측정"
     echo -e "${GREEN} 8.${NC} 🔧 문제 해결 도구     - 자동 진단 및 복구"
+    echo -e "${GREEN} 9.${NC} 🚀 멀티코어 최적화    - CPU 코어 활용 최적화"
     echo ""
     echo -e "${RED} 0.${NC} 🚪 종료"
     echo ""
@@ -1130,7 +1131,7 @@ function show_menu() {
     echo -e "${CYAN}📂 백업: $BACKUP_DIR${NC}"
     echo ""
     
-    read -p "선택 (0-8): " choice
+    read -p "선택 (0-9): " choice
     case $choice in
         1)
             diagnose_environment
@@ -1164,6 +1165,12 @@ function show_menu() {
             ;;
         8)
             run_diagnostic_tools
+            show_menu
+            ;;
+        9)
+            optimize_multicore
+            echo ""
+            read -p "계속하려면 Enter..."
             show_menu
             ;;
         0)
@@ -2241,6 +2248,74 @@ cleanup_on_exit() {
     echo -e "${CYAN}   📂 백업: $BACKUP_DIR${NC}"
     
     exit $exit_code
+}
+
+# 멀티코어 최적화 설정
+optimize_multicore() {
+    print_header "🚀 멀티코어 최적화 설정"
+    
+    local cpu_cores=$(nproc)
+    print_info "감지된 CPU 코어 수: $cpu_cores"
+    
+    # 환경변수 설정
+    export OMP_NUM_THREADS=$cpu_cores
+    export MKL_NUM_THREADS=$cpu_cores
+    export NUMEXPR_NUM_THREADS=$cpu_cores
+    export OPENBLAS_NUM_THREADS=$cpu_cores
+    export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+    
+    # Conda 환경에 영구 설정
+    if [[ -n "$CONDA_PREFIX" ]]; then
+        local env_vars_file="$CONDA_PREFIX/etc/conda/activate.d/env_vars.sh"
+        mkdir -p "$(dirname "$env_vars_file")"
+        
+        cat > "$env_vars_file" << EOF
+#!/bin/bash
+# 멀티코어 최적화 환경변수
+export OMP_NUM_THREADS=$cpu_cores
+export MKL_NUM_THREADS=$cpu_cores
+export NUMEXPR_NUM_THREADS=$cpu_cores
+export OPENBLAS_NUM_THREADS=$cpu_cores
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+EOF
+        chmod +x "$env_vars_file"
+        print_success "Conda 환경에 멀티코어 설정 영구 저장: $env_vars_file"
+    fi
+    
+    # PyTorch 설정 확인
+    print_info "PyTorch 멀티코어 설정 확인 중..."
+    python3 -c "
+import torch
+import multiprocessing as mp
+print(f'CPU 코어 수: {mp.cpu_count()}')
+print(f'PyTorch CPU 스레드: {torch.get_num_threads()}')
+print(f'OpenMP 스레드: {torch.get_num_interop_threads()}')
+if torch.cuda.is_available():
+    print(f'CUDA 장치 수: {torch.cuda.device_count()}')
+    for i in range(torch.cuda.device_count()):
+        print(f'GPU {i}: {torch.cuda.get_device_name(i)}')
+"
+    
+    print_success "멀티코어 최적화 설정 완료"
+}
+
+# YOLO 학습 최적화 실행
+run_optimized_yolo() {
+    local script_path="$1"
+    
+    if [[ ! -f "$script_path" ]]; then
+        print_error "스크립트를 찾을 수 없습니다: $script_path"
+        return 1
+    fi
+    
+    print_header "🎯 최적화된 YOLO 학습 실행"
+    
+    # 멀티코어 최적화 적용
+    optimize_multicore
+    
+    # CPU 친화성 설정으로 모든 코어 사용
+    print_info "모든 CPU 코어를 사용하여 YOLO 학습 시작..."
+    taskset -c 0-$(($(nproc)-1)) python3 "$script_path"
 }
 
 # 신호 처리기 설정
