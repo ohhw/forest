@@ -600,7 +600,7 @@ function diagnose_environment() {
     # 1. 시스템 정보 섹션
     echo ""
     echo -e "${CYAN}${BOLD}📊 시스템 정보${NC}"
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo "  🖥️  OS: $(lsb_release -d | cut -f2)"
     echo "  💾 시스템 메모리: ${SYSTEM_MEMORY_GB}GB"
     echo "  💿 디스크 여유공간: ${DISK_SPACE_GB}GB"
@@ -610,7 +610,7 @@ function diagnose_environment() {
     # 2. NVIDIA/CUDA 환경 섹션
     echo ""
     echo -e "${CYAN}${BOLD}🎮 NVIDIA/CUDA 환경${NC}"
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     # NVIDIA 드라이버 상세 정보
     if command -v nvidia-smi &>/dev/null; then
@@ -675,7 +675,7 @@ function diagnose_environment() {
     # 3. Python/PyTorch 환경 섹션
     echo ""
     echo -e "${CYAN}${BOLD}🐍 Python/PyTorch 환경${NC}"
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     # PyTorch CUDA 연동 확인
     if python3 -c "import torch" &>/dev/null; then
@@ -777,7 +777,7 @@ except:
     # 4. YOLO 환경 검증
     echo ""
     echo -e "${CYAN}${BOLD}🎯 YOLO 환경 검증${NC}"
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     if validate_yolo_environment; then
         echo -e "  ${GREEN}✅ YOLO 환경 검증 통과${NC}"
@@ -789,7 +789,7 @@ except:
     # 5. 종합 결과 및 권장사항
     echo ""
     echo -e "${CYAN}${BOLD}📋 진단 결과 요약${NC}"
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     if [[ $issues_count -eq 0 ]]; then
         echo -e "${GREEN}${BOLD}🎉 환경 진단 완료: 모든 구성 요소가 정상입니다!${NC}"
@@ -1144,9 +1144,9 @@ function show_menu() {
         pytorch_status="✅ PyTorch v$torch_ver ($cuda_available)"
     fi
     
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${YELLOW}📊 현재 환경 상태${NC}"
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "🖥️  시스템: Ubuntu $(lsb_release -rs) | � Python: $(python3 --version | cut -d' ' -f2)"
     echo -e "🎮 GPU: $gpu_status"
     echo -e "⚡ CUDA: $cuda_status"
@@ -1363,7 +1363,7 @@ test_all_yolo_models() {
     echo ""
     
     for model in "${YOLO_MODEL_SIZES[@]}"; do
-        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         test_single_yolo_model "yolo11$model"
         echo ""
         sleep 1
@@ -1983,9 +1983,9 @@ selective_install() {
     
     while true; do
         echo ""
-        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo -e "${CYAN}설치할 구성 요소를 선택하세요${NC}"
-        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         
         echo ""
         echo -e "${YELLOW}시스템 구성 요소:${NC}"
