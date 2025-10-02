@@ -7,7 +7,7 @@ from glob import glob
 
 # 설정
 product = "jjb"
-data_ver = "v10"
+data_ver = "v8"
 img_exts = [
     "bmp",
     "jpg",
@@ -26,12 +26,12 @@ img_exts = [
 # 이미지 경로 리스트 생성 (확장자별로 추가)
 train_img_list = []
 for ext in img_exts:
-    train_img_list += glob(
-        f"/hdd/datasets/dod_data/{product}/{data_ver}/train/images/*.{ext}"
-    )
-    train_img_list += glob(
-        f"/hdd/datasets/dod_data/{product}/250709_add_data/images/*.{ext}"
-    )
+    # v8 디렉토리 이미지
+    train_img_list.extend(glob(f"/hdd/datasets/dod_data/{product}/{data_ver}/train/images/*.{ext}"))
+    # 250529 추가 데이터
+    train_img_list.extend(glob(f"/hdd/datasets/dod_data/{product}/250529_add_data/images/*.{ext}"))
+    # # 250916 추가 데이터
+    # train_img_list.extend(glob(f"/hdd/datasets/dod_data/{product}/250916_add_data/images/*.{ext}"))
 """
 # valid 이미지 경로 리스트 생성 (확장자별로 추가)
 valid_img_list = []
@@ -48,7 +48,7 @@ for ext in img_exts:
     )
 """
 # train 리스트를 txt 파일로 저장
-with open(f"/hdd/datasets/dod_data/{product}/{data_ver}/train.txt", "w") as f:
+with open(f"/hdd/datasets/dod_data/{product}/v9/train.txt", "w") as f:
     f.write("\n".join(train_img_list) + "\n")
 """
 # valid 리스트를 txt 파일로 저장
