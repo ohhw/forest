@@ -14,3 +14,11 @@
 # code/ 폴더 전체 추적 (하위 폴더 포함)
 !code/
 !code/**
+
+# detection/ 폴더의 모든 .py 파일 추적
+!detection/
+!detection/**/*.py
+
+# classification/ 폴더의 모든 .py 파일 추적
+!classification/
+!classification/**/*.py
