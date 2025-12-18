@@ -25,7 +25,7 @@ PRODUCT_CONFIGS = {
         'lrf': None
     },
     'jjb': {
-        'name': '잣',
+        'name': '건대추',
         'data_yaml': 'jjb_defect_detection_data.yaml',
         'epochs': 300,
         'batch': 32,
@@ -37,7 +37,7 @@ PRODUCT_CONFIGS = {
         'lrf': 0.00001
     },
     'wln': {
-        'name': '도토리',
+        'name': '호두',
         'data_yaml': 'wln_defect_detection_data.yaml',
         'epochs': 250,
         'batch': 32,
@@ -292,7 +292,7 @@ def main():
         type=str,
         required=True,
         choices=['csn', 'jjb', 'wln', 'obj'],
-        help='제품 코드 (csn:밤, jjb:잣, wln:도토리, obj:일반객체)'
+        help='제품 코드 (csn:밤, jjb:건대추, wln:호두, obj:일반객체)'
     )
     parser.add_argument(
         '--model-name', '-n',

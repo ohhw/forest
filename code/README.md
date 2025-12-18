@@ -79,8 +79,8 @@ images = collect_images("/path/to/images", recursive=True)
 ## 📊 지원 제품
 
 - **csn**: 밤
-- **jjb**: 잣
-- **wln**: 도토리
+- **jjb**: 건대추
+- **wln**: 호두
 - **obj**: 일반 객체
 
 ## 🔧 필수 패키지

@@ -32,7 +32,7 @@ PRODUCT_CONFIGS = {
         'patience': 100
     },
     'jjb': {
-        'name': '잣',
+        'name': '건대추',
         'data_path': '/hdd/datasets/cls_data/jjb',
         'val_path': '/hdd/datasets/cls_data/jjb/validation',
         'epochs': 100,
@@ -46,7 +46,7 @@ PRODUCT_CONFIGS = {
         'patience': 50
     },
     'wln': {
-        'name': '도토리',
+        'name': '호두',
         'data_path': '/hdd/datasets/cls_data/wln',
         'val_path': '/hdd/datasets/cls_data/wln/validation',
         'epochs': 150,
@@ -286,7 +286,7 @@ def main():
         type=str,
         required=True,
         choices=['csn', 'jjb', 'wln'],
-        help='제품 코드 (csn:밤, jjb:잣, wln:도토리)'
+        help='제품 코드 (csn:밤, jjb:건대추, wln:호두)'
     )
     parser.add_argument(
         '--model-name', '-n',

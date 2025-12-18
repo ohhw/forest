@@ -18,10 +18,10 @@
 # 밤(csn) 학습 - 기본 설정
 python train_classification.py --product csn --model-name csn_test
 
-# 잣(jjb) 학습 - 기본 설정
+# 건대추(jjb) 학습 - 기본 설정
 python train_classification.py --product jjb --model-name jjb_test
 
-# 도토리(wln) 학습 - 기본 설정
+# 호두(wln) 학습 - 기본 설정
 python train_classification.py --product wln --model-name wln_test
 ```
 
@@ -64,12 +64,12 @@ python train_classification.py \
 - weight_decay: 0.01
 - warmup_epochs: 10.0
 
-### 잣 (jjb)
+### 건대추 (jjb)
 - epochs: 100
 - batch: 128
 - optimizer: auto (기본 설정 사용)
 
-### 도토리 (wln)
+### 호두 (wln)
 - epochs: 150
 - batch: 64
 - optimizer: AdamW

@@ -19,10 +19,10 @@
 # 밤(csn) 학습
 python train_detection.py --product csn --model-name csn_test --data-version v8 --train
 
-# 잣(jjb) 학습
+# 건대추(jjb) 학습
 python train_detection.py --product jjb --model-name jjb_test --data-version v10 --train
 
-# 도토리(wln) 학습
+# 호두(wln) 학습
 python train_detection.py --product wln --model-name wln_test --data-version v5 --train
 
 # 일반 객체(obj) 학습
@@ -92,7 +92,7 @@ python train_detection.py \
 - dropout: 0.25
 - iou: 0.35
 
-### 잣 (jjb)
+### 건대추 (jjb)
 - epochs: 300
 - batch: 32
 - patience: 100
@@ -102,7 +102,7 @@ python train_detection.py \
 - lr0: 0.0005
 - lrf: 0.00001
 
-### 도토리 (wln)
+### 호두 (wln)
 - epochs: 250
 - batch: 32
 - patience: 100
