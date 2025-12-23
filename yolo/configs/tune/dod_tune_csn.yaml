@@ -1,0 +1,39 @@
+# CSN (밤) Detection 하이퍼파라미터 튜닝 설정
+# 사용법: python tune.py --config configs/tune/dod_tune_csn.yaml
+
+# 작물 및 기본 설정
+product: csn
+base_config: configs/models/dod/csn.yaml
+
+# CSN 베스트 파라미터 기준 좁은 범위 탐색
+search_space:
+  dropout:
+    type: uniform
+    min: 0.18       # 0.22 ± 0.04
+    max: 0.26
+  iou:
+    type: uniform
+    min: 0.48       # 0.52 ± 0.04
+    max: 0.56
+  lr0:
+    type: loguniform
+    min: 0.0003     # 0.0005 주변
+    max: 0.0008
+  lrf:
+    type: loguniform
+    min: 0.000005   # 0.00001 주변
+    max: 0.00005
+  batch:
+    type: choice
+    values: [16, 32, 64]
+
+# Ray Tune 설정
+tune_settings:
+  iterations: 50
+  gpu_per_trial: 1
+  use_ray: true
+  
+# 최적화 목표
+optimization:
+  metric: metrics/mAP50-95(B)
+  mode: max

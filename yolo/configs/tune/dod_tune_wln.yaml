@@ -1,0 +1,39 @@
+# WLN (호두) Detection 하이퍼파라미터 튜닝 설정
+# 사용법: python tune.py --config configs/tune/dod_tune_wln.yaml
+
+# 작물 및 기본 설정
+product: wln
+base_config: configs/models/dod/wln.yaml
+
+# WLN 베스트 파라미터 기준 좁은 범위 탐색
+search_space:
+  dropout:
+    type: uniform
+    min: 0.15       # 0.2 ± 0.05
+    max: 0.25
+  iou:
+    type: uniform
+    min: 0.40       # 0.45 ± 0.05
+    max: 0.50
+  lr0:
+    type: loguniform
+    min: 0.0005     # base 값 주변
+    max: 0.002
+  lrf:
+    type: loguniform
+    min: 0.00005    # base 값 주변
+    max: 0.0005
+  batch:
+    type: choice
+    values: [16, 32, 64]
+
+# Ray Tune 설정
+tune_settings:
+  iterations: 50
+  gpu_per_trial: 1
+  use_ray: true
+  
+# 최적화 목표
+optimization:
+  metric: metrics/mAP50-95(B)
+  mode: max

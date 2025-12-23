@@ -1,0 +1,28 @@
+# Classification 공통 설정
+task: classify
+
+paths:
+  data_root: /hdd/datasets/cls_data
+  output_root: /home/hwoh/classification
+
+common:
+  user: hwoh
+  exist_ok: true
+
+# 기본 학습 설정 (각 임산물에서 override 가능)
+training:
+  epochs: 300
+  batch: 256
+  patience: 50
+  optimizer: AdamW
+  imgsz: 224
+  lr0: 0.0005
+  lrf: 0.00001
+  dropout: 0.3
+  iou: 0.5
+  plots: true
+
+# 기본 예측 설정
+prediction:
+  save: true
+  save_txt: true

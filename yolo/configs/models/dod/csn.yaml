@@ -1,0 +1,18 @@
+# CSN (밤) Detection 설정
+product: csn
+model: yolo11n  # yolo11n.pt 사전학습 모델
+data_version: v2
+
+training:
+  # csn 특화 하이퍼파라미터
+  epochs: 500
+  batch: 32
+  patience: 150
+  dropout: 0.22
+  iou: 0.52
+  lr0: 0.0005
+  lrf: 0.00001
+  optimizer: AdamW
+
+prediction:
+  conf: 0.5

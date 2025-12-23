@@ -1,0 +1,14 @@
+# JJB (대추) Classification 설정
+product: jjb
+model: yolo11s-cls  # yolo11s-cls.pt 분류 사전학습 모델
+data_version: v1  # jjb는 기본 데이터셋
+
+training:
+  epochs: 100
+  batch: 128
+  imgsz: 224
+  # 나머지는 base.yaml 기본값 사용
+
+prediction:
+  save: true
+  save_txt: true

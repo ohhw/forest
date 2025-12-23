@@ -1,0 +1,15 @@
+# WLN (호두) Detection 설정
+product: wln
+model: yolo11s  # yolo11s.pt 사전학습 모델
+data_version: v2
+
+training:
+  epochs: 150
+  batch: 32
+  dropout: 0.2
+  iou: 0.45
+  optimizer: AdamW
+  # patience, lr0, lrf는 base.yaml의 기본값 사용
+
+prediction:
+  conf: 0.5

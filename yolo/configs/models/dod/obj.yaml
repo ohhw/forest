@@ -1,0 +1,15 @@
+# OBJ (객체) Detection 설정
+product: obj
+model: yolo11n  # yolo11n.pt 사전학습 모델
+data_version: v1
+
+training:
+  epochs: 300
+  batch: 32
+  patience: 100
+  dropout: 0.2
+  iou: 0.5
+  optimizer: AdamW
+
+prediction:
+  conf: 0.5

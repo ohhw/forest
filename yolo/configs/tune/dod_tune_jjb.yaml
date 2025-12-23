@@ -1,0 +1,39 @@
+# JJB (대추) Detection 하이퍼파라미터 튜닝 설정
+# 사용법: python tune.py --config configs/tune/dod_tune_jjb.yaml
+
+# 작물 및 기본 설정
+product: jjb
+base_config: configs/models/dod/jjb.yaml
+
+# JJB 베스트 파라미터 기준 좁은 범위 탐색
+search_space:
+  dropout:
+    type: uniform
+    min: 0.10       # 0.14 ± 0.04
+    max: 0.18
+  iou:
+    type: uniform
+    min: 0.30       # 0.35 ± 0.05
+    max: 0.40
+  lr0:
+    type: loguniform
+    min: 0.00003    # 0.00005 주변
+    max: 0.0001
+  lrf:
+    type: loguniform
+    min: 0.0000005  # 0.000001 주변
+    max: 0.000005
+  batch:
+    type: choice
+    values: [16, 32, 64]
+
+# Ray Tune 설정
+tune_settings:
+  iterations: 50
+  gpu_per_trial: 1
+  use_ray: true
+  
+# 최적화 목표
+optimization:
+  metric: metrics/mAP50-95(B)
+  mode: max

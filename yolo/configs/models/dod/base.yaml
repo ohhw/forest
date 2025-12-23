@@ -1,0 +1,34 @@
+# Detection 공통 설정
+task: detect
+
+paths:
+  data_root: /hdd/datasets/dod_data
+  output_root: /home/hwoh/detection
+
+common:
+  user: hwoh
+  exist_ok: true
+
+# 기본 학습 설정 (각 임산물에서 override 가능)
+training:
+  epochs: 500
+  batch: 32
+  patience: 150
+  optimizer: AdamW
+  imgsz: 640
+  lr0: 0.001
+  lrf: 0.01
+  dropout: 0.2
+  iou: 0.5
+  plots: true
+  
+# 기본 예측 설정 (기존 코드 호환)
+prediction:
+  save: true
+  save_crop: true
+  save_txt: true
+  conf: 0.5
+  iou: 0.45
+  cls: 1.0      # 클래스 수 1개 이상
+  kobj: 1.0     # 객체 수 1개 이상
+  dfl: 1        # DFL 사용 여부
