@@ -62,7 +62,7 @@ python train.py --config configs/models/dod/jjb.yaml --resume
 
 **결과 위치**:
 ```
-/home/hwoh/detection/{product}/runs/detect/{model_name}/
+/home/hwoh/detection/{product}/detect/{model_name}/
 ├── weights/best.pt              # 👈 이걸 사용!
 ├── results.png                  # 학습 곡선
 └── pred_xxx_val/                # 예측 결과
@@ -176,7 +176,7 @@ python predict.py ... --conf 0.7  # 기본 0.5 → 0.7
 <summary><b>Q4. best.pt 파일 위치</b></summary>
 
 ```
-/home/hwoh/detection/{product}/runs/detect/{model_name}/weights/best.pt
+/home/hwoh/detection/{product}/detect/{model_name}/weights/best.pt
 ```
 </details>
 
@@ -215,7 +215,7 @@ python train.py --config configs/models/dod/jjb.yaml --resume
 # ============ 예측 ============
 python predict.py \
   --config configs/models/dod/jjb.yaml \
-  --weights /home/hwoh/detection/jjb/runs/detect/jjb_dod_11l_xxx/weights/best.pt \
+  --weights /home/hwoh/detection/jjb/detect/jjb_dod_11l_xxx/weights/best.pt \
   --source /new/images
 
 # ============ 평가 ============
