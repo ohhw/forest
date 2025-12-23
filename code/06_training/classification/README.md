@@ -1,17 +1,17 @@
-# 🎓 Classification 학습 스크립트
+# Classification 학습 스크립트
 
-## 📋 파일 목록
+## 파일 목록
 
-### 🆕 통합 스크립트 (권장)
+### 통합 스크립트 (권장)
 - **train_classification.py** - 전체 제품 통합 학습 스크립트
 
-### 📦 백업 (원본)
+### 백업 (원본)
 - backup/train_cls_csn_yolo11.py - 밤 분류 (원본)
 - backup/train_cls_jjb_yolo11.py - 잣 분류 (원본)
 
 ---
 
-## 🚀 사용법
+## 사용법
 
 ### 기본 사용
 ```bash
@@ -53,7 +53,7 @@ python train_classification.py \
 
 ---
 
-## 📊 제품별 기본 설정
+## 제품별 기본 설정
 
 ### 밤 (csn)
 - epochs: 200
@@ -78,7 +78,7 @@ python train_classification.py \
 
 ---
 
-## 💾 출력 구조
+## 출력 구조
 
 ```
 /home/hwoh/classification/classify/
@@ -93,7 +93,7 @@ python train_classification.py \
 
 ---
 
-## 🔧 고급 옵션
+## 고급 옵션
 
 모든 YOLO 학습 파라미터를 명령행에서 오버라이드할 수 있습니다:
 - `--epochs`: 학습 에포크 수
@@ -108,7 +108,7 @@ python train_classification.py \
 
 ---
 
-## 📝 도움말
+## 도움말
 ```bash
 python train_classification.py --help
 ```

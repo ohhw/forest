@@ -4,7 +4,7 @@
 
 ---
 
-## ⚡ 5초 시작
+## 빠른 시작
 
 ```bash
 # 학습
@@ -16,7 +16,7 @@ python predict.py --config configs/models/dod/jjb.yaml --weights best.pt --sourc
 
 ---
 
-## 📁 구조
+## 디렉토리 구조
 
 ```
 yolo/
@@ -33,9 +33,9 @@ yolo/
 
 ---
 
-## 🎯 사용법
+## 사용법
 
-### 1️⃣ 학습
+### 1. 학습
 
 ```bash
 # Detection
@@ -63,12 +63,12 @@ python train.py --config configs/models/dod/jjb.yaml --resume
 **결과 위치**:
 ```
 /home/hwoh/detection/{product}/detect/{model_name}/
-├── weights/best.pt              # 👈 이걸 사용!
+├── weights/best.pt              # 학습된 모델
 ├── results.png                  # 학습 곡선
 └── pred_xxx_val/                # 예측 결과
 ```
 
-### 2️⃣ 추론 (새 이미지)
+### 2. 추론 (새 이미지)
 
 ```bash
 # 기본
@@ -84,13 +84,13 @@ python predict.py --config ... --weights best.pt --source /images --conf 0.7
 python predict.py --config ... --weights best.pt --source /images --both-conf
 ```
 
-### 3️⃣ 평가 (Classification)
+### 3. 평가 (Classification)
 
 ```bash
 python evaluate_cls.py --config configs/models/cls/csn.yaml --weights best.pt
 ```
 
-### 4️⃣ 튜닝
+### 4. 튜닝
 
 ```bash
 python tune.py --config configs/tune/dod_tune.yaml --product jjb --iterations 50
@@ -98,7 +98,7 @@ python tune.py --config configs/tune/dod_tune.yaml --product jjb --iterations 50
 
 ---
 
-## 🔧 설정 수정
+## 설정 수정
 
 ```yaml
 # configs/models/dod/jjb.yaml
@@ -119,19 +119,19 @@ prediction:
 
 ---
 
-## 🆚 Detection vs Classification
+## Detection vs Classification
 
 | 항목 | Detection | Classification |
 |------|-----------|----------------|
-| 목적 | 결함 **위치와 종류** 찾기 | 이미지 전체를 **등급**으로 분류 |
+| 목적 | 결함 위치와 종류 찾기 | 이미지 전체를 등급으로 분류 |
 | 출력 | Bounding Box + 클래스 | 클래스 라벨 |
 | 용도 | 결함 검출 | 색택 판정 |
-| Task | `detect` | `classify` |
+| Task | detect | classify |
 | 데이터 | YAML 파일 | 디렉토리 |
 
 ---
 
-## 🔄 기존 코드 vs 새 시스템
+## 기존 코드 vs 새 시스템
 
 | 기존 | 새로운 |
 |------|--------|
@@ -142,64 +142,52 @@ prediction:
 
 ---
 
-## 💡 자주 묻는 질문
+## 자주 묻는 질문
 
-<details>
-<summary><b>Q1. GPU 메모리 부족</b></summary>
+**Q1. GPU 메모리 부족**
 
 ```yaml
 training:
   batch: 16  # 32 → 16으로 줄이기
 ```
-</details>
 
-<details>
-<summary><b>Q2. 학습이 너무 오래 걸림</b></summary>
+**Q2. 학습이 너무 오래 걸림**
 
 ```yaml
 training:
   epochs: 100    # 500 → 100
   patience: 50   # 150 → 50
 ```
-</details>
 
-<details>
-<summary><b>Q3. 예측 오검출이 많음</b></summary>
+**Q3. 예측 오검출이 많음**
 
 ```bash
 # 신뢰도 임계값 올리기
 python predict.py ... --conf 0.7  # 기본 0.5 → 0.7
 ```
-</details>
 
-<details>
-<summary><b>Q4. best.pt 파일 위치</b></summary>
+**Q4. best.pt 파일 위치**
 
 ```
 /home/hwoh/detection/{product}/detect/{model_name}/weights/best.pt
 ```
-</details>
 
-<details>
-<summary><b>Q5. 데이터 경로 에러</b></summary>
+**Q5. 데이터 경로 에러**
 
 YAML 파일에서 `data_version` 확인 (v9, v11 등)
-</details>
 
-<details>
-<summary><b>Q6. 성능이 안 좋을 때</b></summary>
+**Q6. 성능이 안 좋을 때**
 
 1. Epochs 증가: 300 → 500
 2. 모델 크기 증가: yolo11n → yolo11s → yolo11m
 3. Learning rate 낮추기: lr0: 0.0001
-</details>
 
 ---
 
-## 📋 명령어 모음 (복사용)
+## 명령어 모음
 
 ```bash
-# ============ 학습 ============
+# 학습
 # Detection
 python train.py --config configs/models/dod/csn.yaml  # 밤
 python train.py --config configs/models/dod/jjb.yaml  # 대추
@@ -212,30 +200,28 @@ python train.py --config configs/models/cls/jjb.yaml  # 대추
 # 학습 재개
 python train.py --config configs/models/dod/jjb.yaml --resume
 
-# ============ 예측 ============
+# 예측
 python predict.py \
   --config configs/models/dod/jjb.yaml \
   --weights /home/hwoh/detection/jjb/detect/jjb_dod_11l_xxx/weights/best.pt \
   --source /new/images
 
-# ============ 평가 ============
+# 평가
 python evaluate.py --config configs/models/cls/csn.yaml --weights best.pt
 
-# ============ 튜닝 ============
+# 튜닝
 python tune.py --config configs/tune/dod_tune.yaml --product jjb --iterations 50
 
-# ============ 도움말 ============
+# 도움말
 python train.py --help
 python predict.py --help
 ```
 
 ---
 
-## 📝 추가 정보
+## 추가 정보
 
 - **설정 파일 작성법**: [configs/README.md](configs/README.md)
 - **예제 스크립트**: `examples/` 디렉토리
 
----
-
-**문제가 있으면 `python {스크립트} --help` 로 도움말 확인!**
+문제가 있으면 `python {스크립트} --help` 로 도움말을 확인하세요.
