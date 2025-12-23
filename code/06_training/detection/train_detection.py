@@ -143,7 +143,7 @@ def train_model(
         'data': data_yaml_path,
         'name': model_name,
         'exist_ok': True,
-        'project': f"{work_dir}/runs/detect"
+        'project': f"{work_dir}/detect"
     }
     
     # None이 아닌 설정만 추가
@@ -154,9 +154,9 @@ def train_model(
     results = model.train(**train_kwargs)
     
     print(f"\n✅ 학습 완료!")
-    print(f"📁 결과 저장 위치: {work_dir}/runs/detect/{model_name}")
+    print(f"📁 결과 저장 위치: {work_dir}/detect/{model_name}")
     
-    best_weight_path = f"{work_dir}/runs/detect/{model_name}/weights/best.pt"
+    best_weight_path = f"{work_dir}/detect/{model_name}/weights/best.pt"
     return best_weight_path, model_name
 
 
@@ -247,7 +247,7 @@ def predict_model(
         'iou': iou,
         'show_conf': show_conf,
         'exist_ok': True,
-        'project': f"{work_dir}/runs/detect/{model_name}",
+        'project': f"{work_dir}/detect/{model_name}",
         'name': output_name
     }
     
@@ -259,7 +259,7 @@ def predict_model(
     results = model.predict(images_dir, **predict_kwargs)
     
     print(f"\n✅ 예측 완료!")
-    print(f"📁 결과 저장: {work_dir}/runs/detect/{model_name}/{output_name}")
+    print(f"📁 결과 저장: {work_dir}/detect/{model_name}/{output_name}")
 
 
 def main():
@@ -385,7 +385,7 @@ def main():
         model_name = args.model_name
         if not model_path:
             # 기본 경로 추정
-            model_path = f"{work_dir}/runs/detect/{model_name}/weights/best.pt"
+            model_path = f"{work_dir}/detect/{model_name}/weights/best.pt"
     
     # 검증 수행
     if args.validate:

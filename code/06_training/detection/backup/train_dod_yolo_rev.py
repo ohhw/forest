@@ -17,7 +17,7 @@ torch.hub.set_dir(f"/home/{User}/detection/{Product}")
 
 # YOLO 가중치 경로 설정
 model = YOLO(f"/home/{User}/detection/{Product}/yolo{yolo_nm}.pt")  # 사전학습된 YOLO 가중치 경로
-# model = YOLO(f"/home/{User}/detection/{Product}/runs/detect/{model_nm}/weights/best.pt")  # finetune된 모델 가중치 경로
+# model = YOLO(f"/home/{User}/detection/{Product}/detect/{model_nm}/weights/best.pt")  # finetune된 모델 가중치 경로
 
 
 # 모델 설정
@@ -39,12 +39,12 @@ if DO_TRAIN:
         lrf=0.00001, # 학습률 감소 비율
         optimizer="AdamW",
         exist_ok=True,
-        project=f"/home/{User}/detection/{Product}/runs/detect",
+        project=f"/home/{User}/detection/{Product}/detect",
         name=f"{model_nm}",
         # name=f"{model_nm}_finetune",  # 기존과 다른 이름으로 지정
     )
 best_weight_path = (
-    f"/home/{User}/detection/{Product}/runs/detect/{model_nm}/weights/best.pt"
+    f"/home/{User}/detection/{Product}/detect/{model_nm}/weights/best.pt"
 )
 
 
@@ -86,7 +86,7 @@ if DO_PREDICT:
         conf=pred_conf,
         dfl=pred_dfl,
         exist_ok=True, # 기존 결과 덮어쓰기
-        project=f"/home/{User}/detection/{Product}/runs/detect/{model_nm}",
+        project=f"/home/{User}/detection/{Product}/detect/{model_nm}",
         name=f"pred_{model_nm}_val",
         # name=f"pred_{model_nm}_val_finetune",  # 기존과 다른 이름으로 지정
     )
@@ -105,7 +105,7 @@ if DO_PREDICT:
         conf=pred_conf,
         dfl=pred_dfl,
         exist_ok=True,
-        project=f"/home/{User}/detection/{Product}/runs/detect/{model_nm}",
+        project=f"/home/{User}/detection/{Product}/detect/{model_nm}",
         name=f"pred_{model_nm}_val_without_conf",
         # name=f"pred_{model_nm}_val_without_conf_finetune",  # 기존과 다른 이름으로 지정
     )

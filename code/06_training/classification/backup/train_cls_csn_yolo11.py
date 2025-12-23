@@ -53,7 +53,7 @@ print(f"학습 시간: {hours} : {minutes} : {seconds}")
 #### 모델 검증 시간 ####
 # 학습된 모델 로드
 # 개인 폴더 경로로 수정 필요
-model = YOLO(f'/home/shoh/classification/runs/classify/{model_nm}/weights/best.pt')
+model = YOLO(f'/home/shoh/classification/classify/{model_nm}/weights/best.pt')
 
 # 검증 데이터셋 경로
 val_dir = '/hdd/datasets/cls_data/csn/validation'
@@ -106,7 +106,7 @@ plt.title('Confusion Matrix')
 
 # 그림을 파일로 저장
 # 개인 폴더 경로로 수정 필요
-plt.savefig(f'/home/shoh/classification/runs/classify/{model_nm}/confusion_matrix_viz.png')
+plt.savefig(f'/home/shoh/classification/classify/{model_nm}/confusion_matrix_viz.png')
 plt.close() # 메모리에서 현재 그림 삭제, 그림 창 닫기
 
 # Classification Report 생성

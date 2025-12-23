@@ -25,7 +25,7 @@ def parse_args():
         epilog="""
 사용 예시:
   # 기본 평가 (검증 데이터셋)
-  python evaluate.py --config configs/models/cls/csn.yaml --weights runs/classify/csn_cls_11s_25121910h/weights/best.pt
+  python evaluate.py --config configs/models/cls/csn.yaml --weights classify/csn_cls_11s_25121910h/weights/best.pt
   
   # 특정 검증 디렉토리
   python evaluate.py --config configs/models/cls/csn.yaml --weights best.pt --val-dir /path/to/validation

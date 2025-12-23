@@ -18,19 +18,19 @@ results = model.train(
     dropout=0.255, 
     iou=0.415, 
     exist_ok=True,
-    project='/home/hwoh/detection/wln/runs/detect',  # 프로젝트 절대 경로
+    project='/home/hwoh/detection/wln/detect',  # 프로젝트 절대 경로
     name=f"{model_nm}",
 )
 
 # 학습된 모델 로드 -> 개인 폴더 경로로 수정 필요
-model_wln = YOLO(f'/home/hwoh/detection/wln/runs/detect/{model_nm}/weights/best.pt')
+model_wln = YOLO(f'/home/hwoh/detection/wln/detect/{model_nm}/weights/best.pt')
 
 # 모델 예측 수행
 results = model_wln.predict('/hdd/datasets/dod_data/wln/val2/images', 
                             save=True, 
                             save_crop=True, 
                             save_txt=True,  
-                            project=f"/home/hwoh/detection/wln/runs/detect/{model_nm}", 
+                            project=f"/home/hwoh/detection/wln/detect/{model_nm}", 
                             name=f'pred_{model_nm}_val',
 )
 
@@ -40,6 +40,6 @@ results = model_wln.predict('/hdd/datasets/dod_data/wln/val2/images',
                             save_txt=True, 
                             show_conf=False, 
                             exist_ok=True, 
-                            project=f"/home/hwoh/detection/wln/runs/detect/{model_nm}", 
+                            project=f"/home/hwoh/detection/wln/detect/{model_nm}", 
                             name=f'pred_{model_nm}_val_without_conf'
 )

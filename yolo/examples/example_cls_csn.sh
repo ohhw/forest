@@ -9,10 +9,10 @@ echo "=========================================="
 python train.py --config configs/models/cls/csn.yaml
 
 # 학습이 완료되면 자동으로 best.pt 경로가 출력됩니다
-# 예: /home/hwoh/classification/csn/runs/classify/csn_cls_11s_25121910h/weights/best.pt
+# 예: /home/hwoh/classification/csn/classify/csn_cls_11s_25121910h/weights/best.pt
 
 # 2. 평가 (Confusion Matrix 생성)
-WEIGHTS="/home/hwoh/classification/csn/runs/csn_cls_11s_25121910h/weights/best.pt"
+WEIGHTS="/home/hwoh/classification/csn/classify/csn_cls_11s_25121910h/weights/best.pt"
 
 python evaluate.py \
   --config configs/models/cls/csn.yaml \

@@ -22,3 +22,7 @@
 # classification/ 폴더의 모든 .py 파일 추적
 !classification/
 !classification/**/*.py
+
+# yolo/ 폴더 전체 추적
+!yolo/
+!yolo/**

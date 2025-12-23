@@ -48,7 +48,7 @@ python train_classification.py \
   --product csn \
   --model-name csn_existing \
   --evaluate-only \
-  --model-path /home/hwoh/classification/runs/classify/csn_test/weights/best.pt
+  --model-path /home/hwoh/classification/classify/csn_test/weights/best.pt
 ```
 
 ---
@@ -81,7 +81,7 @@ python train_classification.py \
 ## 💾 출력 구조
 
 ```
-/home/hwoh/classification/runs/classify/
+/home/hwoh/classification/classify/
 └── {model_name}/
     ├── weights/
     │   ├── best.pt

@@ -47,7 +47,7 @@ python train_detection.py \
   --product csn \
   --model-name csn_existing \
   --predict \
-  --model-path /home/hwoh/detection/csn/runs/detect/csn_test/weights/best.pt \
+  --model-path /home/hwoh/detection/csn/detect/csn_test/weights/best.pt \
   --images-dir /hdd/datasets/dod_data/csn/v8/val/images
 ```
 
@@ -122,7 +122,7 @@ python train_detection.py \
 ## 💾 출력 구조
 
 ```
-/home/hwoh/detection/{product}/runs/detect/
+/home/hwoh/detection/{product}/detect/
 └── {model_name}/
     ├── weights/
     │   ├── best.pt

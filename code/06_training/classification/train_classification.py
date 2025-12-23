@@ -221,7 +221,7 @@ def evaluate_model(
     
     # 저장 디렉토리 설정
     if save_dir is None:
-        save_dir = f'/home/{user}/classification/runs/classify/{model_name}'
+        save_dir = f'/home/{user}/classification/classify/{model_name}'
     os.makedirs(save_dir, exist_ok=True)
     
     # Confusion Matrix 시각화
@@ -378,7 +378,7 @@ def main():
     
     # 학습 후 평가
     if args.evaluate:
-        model_path = f'/home/{args.user}/classification/runs/classify/{model_name}/weights/best.pt'
+        model_path = f'/home/{args.user}/classification/classify/{model_name}/weights/best.pt'
         config = PRODUCT_CONFIGS[args.product]
         evaluate_model(
             model_path=model_path,

@@ -68,7 +68,7 @@ def parse_args():
         epilog="""
 사용 예시:
   # 기본 추론 (검증 데이터셋)
-  python predict.py --config configs/models/dod/csn.yaml --weights runs/detect/csn_dod_11n_25121910h/weights/best.pt
+  python predict.py --config configs/models/dod/csn.yaml --weights detect/csn_dod_11n_25121910h/weights/best.pt
   
   # 특정 이미지 디렉토리
   python predict.py --config configs/models/dod/csn.yaml --weights best.pt --source /path/to/images

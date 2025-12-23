@@ -19,12 +19,12 @@ model.train(
     dropout=0.25,
     iou=0.35,
     exist_ok=True,
-    project=f"/home/hwoh/detection/csn/runs/detect",  # 수정된 경로
+    project=f"/home/hwoh/detection/csn/detect",  # 수정된 경로
     name=f"{model_nm}",
 )
 
 # 베스트 모델 로드
-model_csn = YOLO(f"/home/hwoh/detection/csn/runs/detect/{model_nm}/weights/best.pt")
+model_csn = YOLO(f"/home/hwoh/detection/csn/detect/{model_nm}/weights/best.pt")
 
 # 모델 예측 수행
 results = model_csn.predict(
@@ -32,7 +32,7 @@ results = model_csn.predict(
     save=True,
     save_crop=True,
     save_txt=True,
-    project=f"/home/hwoh/detection/csn/runs/detect/{model_nm}",
+    project=f"/home/hwoh/detection/csn/detect/{model_nm}",
     name=f"pred_{model_nm}_val",
 )
 
@@ -43,6 +43,6 @@ results = model_csn.predict(
     save_crop=True,
     save_txt=True,
     show_conf=False,
-    project=f"/home/hwoh/detection/csn/runs/detect/{model_nm}",
+    project=f"/home/hwoh/detection/csn/detect/{model_nm}",
     name=f"pred_{model_nm}_val_without_conf",
 )

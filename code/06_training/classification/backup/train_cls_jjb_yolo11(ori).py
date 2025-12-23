@@ -48,7 +48,7 @@ print(f'학습 시간: {hours} : {minutes} : {seconds}')
 
 # 3. 학습된 모델 로드
 # 학습이 끝난 후 저장된 best.pt(최적 가중치) 모델을 다시 로드
-model = YOLO(f'/home/{User}/classification/{Product}/runs/classify/{model_nm}/weights/best.pt')
+model = YOLO(f'/home/{User}/classification/{Product}/classify/{model_nm}/weights/best.pt')
 
 # 4. 검증 데이터셋 준비
 val_dir = '/hdd/datasets/cls_data/jjb/validation'  # 검증 데이터셋 경로
@@ -93,7 +93,7 @@ sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, ytic
 plt.xlabel('Predicted')
 plt.ylabel('True')
 plt.title('Confusion Matrix')
-plt.savefig(f'/home/{User}/classification/{Product}/runs/classify/{model_nm}/confusion_matrix_viz.png')
+plt.savefig(f'/home/{User}/classification/{Product}/classify/{model_nm}/confusion_matrix_viz.png')
 plt.close()
 
 # 분류 리포트(정밀도, 재현율 등) 출력
