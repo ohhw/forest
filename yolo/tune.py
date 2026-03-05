@@ -10,6 +10,8 @@ from pathlib import Path
 import json
 import yaml
 from datetime import datetime
+import pickle
+import shutil
 
 # 프로젝트 루트를 Python 경로에 추가
 ROOT = Path(__file__).parent
@@ -146,12 +148,36 @@ def main():
         print(f"  ✓ Iterations: {iterations}")
         print(f"  ✓ Data: {data_path}")
         print(f"  ✓ GPU: {args.device}")
+        
+        # 중간 저장 디렉토리 설정
+        checkpoint_dir = ROOT / "tune_checkpoints"
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        checkpoint_file = checkpoint_dir / f"{product}_tune_checkpoint.pkl"
+        
+        print(f"  ✓ Checkpoint: {checkpoint_file}")
         print(f"\n🚀 튜닝 시작 (시간이 오래 걸립니다)...\n")
+        
+        # 중간 저장을 위한 설정 저장
+        checkpoint_data = {
+            'config': config,
+            'tune_config': tune_config,
+            'base_config_path': base_config_path,
+            'timestamp_start': datetime.now().isoformat(),
+            'iterations': iterations,
+            'data_path': data_path
+        }
+        
+        with open(checkpoint_file, 'wb') as f:
+            pickle.dump(checkpoint_data, f)
+        print(f"  ✓ 중간 저장 설정 완료\n")
+        
+        # 튜닝 epochs 설정 (tune_settings 우선, 없으면 기본 학습 epochs 사용)
+        tune_epochs = tune_settings.get('epochs', config['training']['epochs'])
         
         # YOLO의 tune() 메서드 사용
         results = model.tune(
             data=data_path,
-            epochs=config['training']['epochs'],
+            epochs=tune_epochs,
             iterations=iterations,
             optimizer=config['training'].get('optimizer', 'AdamW'),
             device=args.device,
@@ -159,6 +185,24 @@ def main():
         )
         
         print("-" * 60)
+        
+        # 튜닝 결과를 checkpoint에 저장 (pickle 가능한 형태로 변환)
+        try:
+            # results를 dict로 변환 (Ray 객체 제거)
+            if results and isinstance(results, dict):
+                results_serializable = {k: v for k, v in results.items() 
+                                       if not k.startswith('_')}
+            else:
+                results_serializable = str(results) if results else None
+            
+            checkpoint_data['results'] = results_serializable
+            checkpoint_data['timestamp_end'] = datetime.now().isoformat()
+            
+            with open(checkpoint_file, 'wb') as f:
+                pickle.dump(checkpoint_data, f)
+            print(f"  ✓ 튜닝 결과 중간 저장 완료\n")
+        except Exception as e:
+            print(f"  ⚠️  중간 저장 실패 (계속 진행): {e}\n")
         
         # 5. 결과 저장
         print(f"\n[5/6] 튜닝 결과 저장 중...")
@@ -183,10 +227,20 @@ def main():
         print(f"📊 최적 하이퍼파라미터:")
         print(results)
         print(f"\n📝 로그 저장 위치: {log_path}")
+        print(f"💾 Checkpoint 저장: {checkpoint_file}")
         
         if not args.auto_update:
             print("\n💡 설정 파일에 자동 반영하려면 --auto-update 옵션을 사용하세요")
             print(f"  또는 수동으로 반영하세요: {base_config_path}")
+        
+        # Checkpoint 백업 (성공 시)
+        try:
+            if checkpoint_file.exists():
+                backup_checkpoint = checkpoint_dir / f"{product}_tune_success_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+                shutil.copy2(checkpoint_file, backup_checkpoint)
+                print(f"\n✓ Checkpoint 백업: {backup_checkpoint}")
+        except Exception as e:
+            print(f"\n⚠️  Checkpoint 백업 실패: {e}")
         
         print("=" * 60)
         
@@ -194,11 +248,27 @@ def main():
         print(f"\n❌ 파일을 찾을 수 없습니다: {e}")
         sys.exit(1)
     except ImportError as e:
-        print(f"\n❌ Ray Tune이 설치되지 않았습니다:")
-        print(f"   pip install 'ray[tune]'")
+        if 'ray' in str(e).lower():
+            print(f"\n❌ Ray Tune이 설치되지 않았습니다:")
+            print(f"   pip install 'ray[tune]'")
+        else:
+            print(f"\n❌ Import 오류: {e}")
         sys.exit(1)
     except Exception as e:
         print(f"\n❌ 오류 발생: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # 오류 발생 시 checkpoint 정보 출력
+        try:
+            checkpoint_dir = ROOT / "tune_checkpoints"
+            print(f"\n💾 중간 저장 파일이 있다면:")
+            print(f"   {checkpoint_dir}")
+            print(f"\n   복구하려면:")
+            print(f"   python tune.py --restore <checkpoint_file>")
+        except:
+            pass
+        
         import traceback
         traceback.print_exc()
         sys.exit(1)
@@ -228,6 +298,24 @@ def save_tuning_results(config: dict, tune_config: dict, results: dict, base_con
     # 타임스탬프
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     
+    # results를 JSON 직렬화 가능한 형태로 변환
+    best_params = {}
+    if results:
+        try:
+            if isinstance(results, dict):
+                # 이미 dict면 그대로 사용
+                best_params = {k: v for k, v in results.items() 
+                              if not k.startswith('_') and isinstance(v, (int, float, str, bool, type(None)))}
+            elif hasattr(results, '__dict__'):
+                # 객체면 속성 추출
+                best_params = {k: v for k, v in results.__dict__.items() 
+                              if not k.startswith('_') and isinstance(v, (int, float, str, bool, type(None)))}
+            else:
+                # 변환 불가능하면 문자열로
+                best_params = {'result': str(results)}
+        except Exception as e:
+            best_params = {'error': f'Failed to serialize: {str(e)}', 'raw': str(results)[:500]}
+    
     # 로그 데이터 구성
     log_data = {
         'timestamp': datetime.now().isoformat(),
@@ -238,7 +326,7 @@ def save_tuning_results(config: dict, tune_config: dict, results: dict, base_con
         'config_file': base_config_path,
         'tune_settings': tune_config['tune_settings'],
         'search_space': tune_config['search_space'],
-        'best_hyperparameters': dict(results) if results else {},
+        'best_hyperparameters': best_params,
         'original_training_params': config['training']
     }
     

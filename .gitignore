@@ -26,3 +26,17 @@
 # yolo/ 폴더 전체 추적
 !yolo/
 !yolo/**
+
+# Python 캐시 파일 제외
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# YOLO 모델 가중치 파일 제외 (대용량)
+**/*.pt
+**/*.pth
+**/*.weights
+
+# 학습 체크포인트 제외
+**/tune_checkpoints/
+**/runs/

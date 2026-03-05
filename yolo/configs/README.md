@@ -194,48 +194,151 @@ csn_dod_11n_25121910h
   └─ 임산물
 ```
 
-## 새 임산물 추가 예시
+## 실제 사용 예시
 
-### 1. 복사
+### 예시 1: CSN (밤) Detection 학습
 
-```bash
-cp configs/models/dod/csn.yaml configs/models/dod/신규.yaml
-```
-
-### 2. 편집
+**1. 설정 파일 확인** (`configs/models/dod/csn.yaml`)
 
 ```yaml
-product: 신규           # 임산물 코드 변경
-model: yolo11s          # 원하는 모델 크기
-data_version: v1        # 데이터 버전
+product: csn
+model: yolo11n
+data_version: v2
 
 training:
-  epochs: 300           # 실험 시작값
+  epochs: 500
   batch: 32
-  patience: 100
-  dropout: 0.2          # 기본값
-  iou: 0.5
-  lr0: 0.001
-  lrf: 0.01
+  patience: 150
+  dropout: 0.24
+  iou: 0.54
+  lr0: 0.0005
+  lrf: 0.00001
   optimizer: AdamW
-
-prediction:
-  conf: 0.5
 ```
 
-### 3. 학습
+**2. 학습 실행**
 
 ```bash
-python train.py --config configs/models/dod/신규.yaml
+python train.py --config configs/models/dod/csn.yaml
 ```
 
-### 4. 튜닝 (선택)
+**3. 하이퍼파라미터 튜닝 (선택사항)**
 
 ```bash
-python tune.py --config configs/tune/dod_tune.yaml --product 신규 --iterations 50
+# CSN 전용 튜닝 설정 사용
+python tune.py --config configs/tune/dod_tune_csn.yaml --iterations 50
+
+# 튜닝 결과를 csn.yaml에 반영
+
+# ⚠️ 중요: 튜닝은 최적 파라미터만 찾고, 최종 모델은 생성하지 않습니다!
+#          튜닝 후 업데이트된 yaml로 재학습 필요
 ```
 
-최적 하이퍼파라미터를 설정 파일에 반영합니다.
+**4. 최종 모델 학습 (튜닝 후)**
+
+```bash
+# 업데이트된 파라미터로 최종 모델 학습
+python train.py --config configs/models/dod/csn.yaml
+```
+
+**중간 저장 기능**
+- 튜닝 중 자동으로 checkpoint 저장 (`{product}/tune_checkpoints/`)
+- 오류 발생 시에도 중간 결과 복구 가능
+- 튜닝 완료 시 최종 백업 자동 생성
+
+### 예시 2: JJB (대추) Classification 학습
+
+**1. 설정 파일** (`configs/models/cls/jjb.yaml`)
+
+```yaml
+product: jjb
+model: yolo11s-cls
+data_version: v1
+
+training:
+  epochs: 100
+  batch: 128
+  # 나머지는 base.yaml 상속
+```
+
+**2. 학습 실행**
+
+```bash
+python train.py --config configs/models/cls/jjb.yaml
+```
+
+### 예시 3: WLN (호두) 새 데이터셋으로 재학습
+
+**1. 설정 수정** (`configs/models/dod/wln.yaml`)
+
+```bash
+# 데이터 버전만 변경
+vim configs/models/dod/wln.yaml
+
+# data_version: v1 → v2로 변경
+```
+
+**2. 학습 실행**
+
+```bash
+python train.py --config configs/models/dod/wln.yaml
+```
+
+생성되는 모델명: `wln_dod_11n_26010715h` (자동 날짜/시간 포함)
+
+### 새 임산물 추가하기
+
+기존 임산물(csn, jjb, wln)을 템플릿으로 사용:
+
+```bash
+# 1. 기존 설정 복사
+cp configs/models/dod/csn.yaml configs/models/dod/oak.yaml  # oak: 도토리
+
+# 2. 필수 항목만 수정
+vim configs/models/dod/oak.yaml
+```
+
+```yaml
+product: oak              # 임산물 코드 변경
+model: yolo11n            # 모델 크기
+data_version: v1          # 데이터 버전
+
+# training 파라미터는 일단 csn 값 그대로 사용
+# 학습 후 튜닝으로 최적화
+```
+
+```bash
+# 3. 학습
+python train.py --config configs/models/dod/oak.yaml
+
+# 4. 튜닝 (선택)
+python tune.py --config configs/tune/dod_tune.yaml --product oak --iterations 30
+
+# ⚠️ 튜닝 완료 후 반드시 재학습 필요!
+python train.py --config configs/models/dod/oak.yaml
+```
+
+## 검증 및 테스트
+
+### 설정 검증
+
+모든 작물 설정이 올바른지 확인:
+
+```bash
+python test_tune_configs.py
+```
+
+출력 예시:
+```
+✅ Detection:      통과 (csn, jjb, wln, obj)
+✅ Classification: 통과 (csn, jjb, wln)
+✅ 개별 설정:      통과
+
+사용 가능한 명령어:
+  python tune.py --config configs/tune/dod_tune.yaml --product csn --iterations 30
+  python tune.py --config configs/tune/cls_tune.yaml --product jjb --iterations 30
+  ...
+```
 
 ## 팁
 
@@ -245,15 +348,21 @@ python tune.py --config configs/tune/dod_tune.yaml --product 신규 --iterations
 
 ```bash
 git add configs/models/dod/csn.yaml
-git commit -m "CSN: dropout 0.24, iou 0.54로 변경"
+git commit -m "CSN: dropout 0.22→0.24, iou 0.50→0.54 변경 (mAP 0.832→0.851)"
+
+# 튜닝 설정도 함께 관리
+git add configs/tune/dod_tune_csn.yaml
+git commit -m "CSN: 튜닝 범위 좁힘 (베스트 파라미터 기준 ±0.04)"
 ```
 
 ### 설정 재사용
 
-좋은 결과를 낸 설정은 템플릿으로 저장:
+좋은 결과를 낸 설정은 다른 임산물에 적용:
 
 ```bash
-cp configs/models/dod/csn.yaml configs/models/dod/템플릿_밤류.yaml
+# CSN 설정이 좋았다면 비슷한 특성의 임산물(WLN)에 적용
+cp configs/models/dod/csn.yaml configs/models/dod/wln.yaml
+vim configs/models/dod/wln.yaml  # product, data_version만 변경
 ```
 
 ### 주석 활용
@@ -290,6 +399,30 @@ training:
 
 A: 사전학습 모델은 자동 다운로드됩니다. 또는 `paths.pretrained_models` 경로에 배치하세요.
 
+### Q: 튜닝 완료했는데 모델이 안 보여요
+
+A: **튜닝은 최적 파라미터만 찾습니다!** 최종 모델은 직접 학습해야 합니다:
+
+```bash
+# 1. 튜닝으로 파라미터 발견 (yaml 자동 업데이트)
+python tune.py --config configs/tune/dod_tune_csn.yaml --auto-update
+
+# 2. 업데이트된 설정으로 최종 모델 학습
+python train.py --config configs/models/dod/csn.yaml
+```
+
+### Q: 튜닝 중에 오류가 났어요
+
+A: 중간 저장된 checkpoint 파일 확인:
+
+```bash
+# Checkpoint 위치
+ls ~/detection/{product}/tune_checkpoints/
+
+# 결과가 저장되어 있다면 로그 확인 가능
+cat ~/detection/{product}/tune_logs/*.json
+```
+
 ### Q: 설정이 반영되지 않는 것 같아요
 
 A: YAML 문법을 확인하세요. 들여쓰기는 공백 2칸입니다.
@@ -302,4 +435,12 @@ training:
 # 잘못됨 (탭 사용)
 training:
     epochs: 500
+```
+
+### Q: 모든 작물 설정이 제대로 되어있는지 확인하려면?
+
+A: 검증 스크립트 실행:
+
+```bash
+python test_tune_configs.py
 ```

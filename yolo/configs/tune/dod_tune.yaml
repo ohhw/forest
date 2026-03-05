@@ -9,15 +9,9 @@ base_configs:
   obj: configs/models/dod/obj.yaml
 
 # 하이퍼파라미터 탐색 공간 (모든 작물 커버)
+# 주의: YOLO tune()은 augmentation + optimizer 파라미터만 튜닝합니다
+# epochs, batch, dropout, iou는 각 작물 yaml에서 수동 설정하세요
 search_space:
-  dropout:
-    type: uniform
-    min: 0.1
-    max: 0.4
-  iou:
-    type: uniform
-    min: 0.3        # JJB 0.35 포함
-    max: 0.7
   lr0:
     type: loguniform
     min: 0.00001    # JJB 0.00005 포함
@@ -26,13 +20,11 @@ search_space:
     type: loguniform
     min: 0.000001   # JJB 0.000001 포함
     max: 0.1
-  batch:
-    type: choice
-    values: [16, 32, 64]
 
 # Ray Tune 설정
 tune_settings:
   iterations: 50  # 튜닝 반복 횟수
+  epochs: 30      # 튜닝 시 epoch 수 (기본 학습보다 적게)
   gpu_per_trial: 1
   use_ray: true
   

@@ -8,6 +8,29 @@ training:
   batch: 32
   dropout: 0.2
   iou: 0.45
+  lr0: 0.00476101
+  lrf: 0.0880541
+  momentum: 0.666545
+  weight_decay: 0.000320469
+  warmup_epochs: 3.24707
+  warmup_momentum: 0.697645
+  box: 0.0912436
+  cls: 1.09365
+  hsv_h: 0.0129072
+  hsv_s: 0.458633
+  hsv_v: 0.261154
+  degrees: 29.0022
+  translate: 0.20629
+  scale: 0.426439
+  shear: 4.95363
+  perspective: 0.000951847
+  flipud: 0.511787
+  fliplr: 0.533996
+  bgr: 0.404399
+  mosaic: 0.320029
+  mixup: 0.117481
+  cutmix: 0.730339
+  copy_paste: 0.490442
   optimizer: AdamW
   # patience, lr0, lrf는 base.yaml의 기본값 사용
 
